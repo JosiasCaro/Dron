@@ -693,11 +693,9 @@ bool MPU6050::getXGyroFIFOEnabled() {
 void MPU6050::setXGyroFIFOEnabled(bool enabled) {
     I2Cdev::writeBit(devAddr, MPU6050_RA_FIFO_EN, MPU6050_XG_FIFO_EN_BIT, enabled);
 }
-/** Get gyroscope Y-axis FIFO enabled value.
- * When set to 1, this bit enables GYRO_YOUT_H and GYRO_YOUT_L (Registers 69 and
- * 70) to be written into the FIFO buffer.
- * @return Current gyroscope Y-axis FIFO enabled value
- * @see MPU6050_RA_FIFO_EN
+/** Permite controlar si la FIFO para los datos del 
+ *giroscopio en el MPU6050 está habilitada o deshabilitada, 
+ *dependiendo del valor del parámetro enabled.
  */
 bool MPU6050::getYGyroFIFOEnabled() {
     I2Cdev::readBit(devAddr, MPU6050_RA_FIFO_EN, MPU6050_YG_FIFO_EN_BIT, buffer);
