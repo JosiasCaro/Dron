@@ -9,6 +9,8 @@ static const char *TAG = "wifi";
 static EventGroupHandle_t wifi_event_group;
 static int wifi_retry = 0;
 
+
+// Gestionar los eventos relacionados con la conexión WiFi.
 static void my_handler(void *handler_arg, esp_event_base_t base,
                        int32_t id, void *data)
 {
@@ -56,30 +58,35 @@ static void my_handler(void *handler_arg, esp_event_base_t base,
     }
 }
 
+// Se encarga de iniciar y configurar la conexión WiFi.
+// si logra enlazarce con el WiFi retorna ESP_OK.
 esp_err_t start_wifi(void)
 {
     wifi_event_group = xEventGroupCreate();
     /* 0. Initialize NVS*/
     esp_err_t ret = nvs_flash_init();
+    // Control de exceptions, si hay un problema con la actualizacion o no hay paginas disponibles en la memoria NVS
+    // se iniciara nuevamente el amacenamiento para la configuracion del WIFI.
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {
         ESP_ERROR_CHECK(nvs_flash_erase());
         ret = nvs_flash_init();
     }
-    ESP_ERROR_CHECK(ret);
+    ESP_ERROR_CHECK(ret); //Verifica si hay errores durante la inicialización del NVS y los maneja adecuadamente.
 
     /* 1. lwip initialize*/
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-    esp_netif_create_default_wifi_sta();
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID,
+    ESP_ERROR_CHECK(esp_netif_init()); //Inicializa la interfaz de red del ESP32.
+    ESP_ERROR_CHECK(esp_event_loop_create_default()); //Crea un bucle de eventos por defecto para manejar eventos del sistema.
+    esp_netif_create_default_wifi_sta(); //Crea una interfaz de red por defecto para la estación WiFi.
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT(); //Inicializa la estructura de configuración de WiFi con los valores por defecto.
+    ESP_ERROR_CHECK(esp_wifi_init(&cfg)); //Inicializa el controlador WiFi con la configuración predeterminada.
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, //Registra el manejador de eventos my_handler para eventos de WiFi.
                                                         &my_handler, NULL, NULL));
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP,
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, //Registra el manejador de eventos my_handler para eventos de obtención de IP.
                                                         &my_handler, NULL, NULL));
 
     /*2. wifi config*/
+    // Se configuran los parámetros de la red WiFi en la estructura wifi_config_t wifi_cfg.
     wifi_config_t wifi_cfg = {
         .sta = {
             .ssid = MYSSID,
@@ -90,11 +97,12 @@ esp_err_t start_wifi(void)
                 .required = false},
         },
     };
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_cfg));
-    ESP_LOGI(TAG, "init finished");
+
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA)); // Establece el modo de operación del WiFi como estación (STA).
+    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_cfg)); // Configura los parámetros de la red WiFi para el modo estación.
+    ESP_LOGI(TAG, "init finished"); // Registra un mensaje de información indicando que la inicialización ha finalizado.
     /*3. wifi start*/
-    ESP_ERROR_CHECK(esp_wifi_start());
+    ESP_ERROR_CHECK(esp_wifi_start()); // Inicia el controlador WiFi.
 
     EventBits_t bit = xEventGroupWaitBits(wifi_event_group, WIFI_FAIL_BIT | WIFI_CONNECTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
     if (bit & WIFI_FAIL_BIT)
@@ -102,6 +110,6 @@ esp_err_t start_wifi(void)
         ESP_LOGI(TAG, "wifi connection failed");
         vTaskDelay(portMAX_DELAY);
     }
-    vEventGroupDelete(wifi_event_group);
+    vEventGroupDelete(wifi_event_group); //Elimina el grupo de eventos una vez que la conexión se ha establecido o ha fallado.
     return (ESP_OK);
 }
