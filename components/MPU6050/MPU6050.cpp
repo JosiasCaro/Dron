@@ -1708,12 +1708,8 @@ uint8_t MPU6050::getIntStatus() {
     I2Cdev::readByte(devAddr, MPU6050_RA_INT_STATUS, buffer);
     return buffer[0];
 }
-/** Get Free Fall interrupt status.
- * This bit automatically sets to 1 when a Free Fall interrupt has been
- * generated. The bit clears to 0 after the register has been read.
- * @return Current interrupt status
- * @see MPU6050_RA_INT_STATUS
- * @see MPU6050_INTERRUPT_FF_BIT
+/** Permite obtener el estado de las interrupciones del MPU6050,
+ * leyendo un byte del registro correspondiente y devolviendo el valor leído.
  */
 bool MPU6050::getIntFreefallStatus() {
     I2Cdev::readBit(devAddr, MPU6050_RA_INT_STATUS, MPU6050_INTERRUPT_FF_BIT, buffer);
@@ -2411,11 +2407,8 @@ void MPU6050::switchSPIEnabled(bool enabled) {
 void MPU6050::resetFIFO() {
     I2Cdev::writeBit(devAddr, MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_FIFO_RESET_BIT, true);
 }
-/** Reset the I2C Master.
- * This bit resets the I2C Master when set to 1 while I2C_MST_EN equals 0.
- * This bit automatically clears to 0 after the reset has been triggered.
- * @see MPU6050_RA_USER_CTRL
- * @see MPU6050_USERCTRL_I2C_MST_RESET_BIT
+/** Permite restablecer la FIFO del MPU6050 configurando un bit específico 
+ *en el registro de control de usuario del dispositivo.
  */
 void MPU6050::resetI2CMaster() {
     I2Cdev::writeBit(devAddr, MPU6050_RA_USER_CTRL, MPU6050_USERCTRL_I2C_MST_RESET_BIT, true);
@@ -2729,6 +2722,10 @@ uint16_t MPU6050::getFIFOCount() {
     I2Cdev::readBytes(devAddr, MPU6050_RA_FIFO_COUNTH, 2, buffer);
     return (((uint16_t)buffer[0]) << 8) | buffer[1];
 }
+/** Permite obtener el recuento total de la FIFO del MPU6050, 
+ *leyendo dos bytes del registro correspondiente y combinándolos 
+ *en un valor de 16 bits.
+ */
 
 // FIFO_R_W register
 
@@ -2761,6 +2758,10 @@ uint8_t MPU6050::getFIFOByte() {
     I2Cdev::readByte(devAddr, MPU6050_RA_FIFO_R_W, buffer);
     return buffer[0];
 }
+/** Permite permite leer un número específico de bytes de la FIFO del MPU6050 
+ * y almacenarlos en un búfer proporcionado por el usuario, con la posibilidad 
+ * de manejar el caso especial cuando la longitud es 0.
+ */
 void MPU6050::getFIFOBytes(uint8_t *data, uint8_t length) {
     if(length > 0){
         I2Cdev::readBytes(devAddr, MPU6050_RA_FIFO_R_W, length, data);
@@ -2910,6 +2911,9 @@ int16_t MPU6050::getXGyroOffset() {
 void MPU6050::setXGyroOffset(int16_t offset) {
     I2Cdev::writeWord(devAddr, MPU6050_RA_XG_OFFS_USRH, offset);
 }
+/** Permite configurar el desplazamiento del giroscopio en el eje X 
+ *del MPU6050 utilizando el valor proporcionado en el parámetro offset.
+ */
 
 // YG_OFFS_USR* register
 
@@ -2917,9 +2921,13 @@ int16_t MPU6050::getYGyroOffset() {
     I2Cdev::readBytes(devAddr, MPU6050_RA_YG_OFFS_USRH, 2, buffer);
     return (((int16_t)buffer[0]) << 8) | buffer[1];
 }
+
 void MPU6050::setYGyroOffset(int16_t offset) {
     I2Cdev::writeWord(devAddr, MPU6050_RA_YG_OFFS_USRH, offset);
 }
+/** Permite configurar el desplazamiento del giroscopio en el eje Y 
+ *del MPU6050 utilizando el valor proporcionado en el parámetro offset.
+ */
 
 // ZG_OFFS_USR* register
 
@@ -2930,6 +2938,9 @@ int16_t MPU6050::getZGyroOffset() {
 void MPU6050::setZGyroOffset(int16_t offset) {
     I2Cdev::writeWord(devAddr, MPU6050_RA_ZG_OFFS_USRH, offset);
 }
+/** Permite configurar el desplazamiento del giroscopio en el eje Z 
+ *del MPU6050 utilizando el valor proporcionado en el parámetro offset.
+ */
 
 // INT_ENABLE register (DMP functions)
 
@@ -2981,6 +2992,9 @@ bool MPU6050::getIntPLLReadyStatus() {
     I2Cdev::readBit(devAddr, MPU6050_RA_INT_STATUS, MPU6050_INTERRUPT_PLL_RDY_INT_BIT, buffer);
     return buffer[0];
 }
+/** Permite obtener el estado de la interrupción de "PLL Ready" del MPU6050, leyendo un bit
+ * del registro correspondiente y devolviendo el valor leído como un booleano.
+ */
 bool MPU6050::getIntDMPStatus() {
     I2Cdev::readBit(devAddr, MPU6050_RA_INT_STATUS, MPU6050_INTERRUPT_DMP_INT_BIT, buffer);
     return buffer[0];
