@@ -34,6 +34,18 @@ class Boton{
         this.element.addEventListener('click', this.clickHandler.bind(this));
     }
 
+    setRadius(radio) {
+        this.element.style.borderRadius = radio;
+    }
+
+    setWidth(ancho) {
+        this.element.style.width = `${ancho}px`;
+    }
+
+    setHeight(altura) {
+        this.element.style.height = `${altura}px`;
+    }
+
     touchStartHandler(e) {
         if (e) console.log(`Touch en botón ${this.id}`);
     }
@@ -49,7 +61,7 @@ function background() {
 }
 
 let joysticks = [
-    new Joystick(80, height - 110, 50, 25)
+    new Joystick(80, height - 100, 50, 25)
 ];
 let botones = [
     // boton abajo (A)
@@ -61,6 +73,20 @@ let botones = [
     // boton arriba (Y)
     new Boton(1150, height - 150,"Y")
     ];
+
+let gatillos = [
+    // boton arriba (L)
+    new Boton(350, height - 250,"L"),
+    // boton arriba (R)
+    new Boton(750, height - 250,"B")
+];
+
+for (gatillo of gatillos) {
+    gatillo.setRadius('5%');
+    gatillo.setWidth('170');
+    gatillo.setHeight('60');
+}
+
 
 setInterval(() => {
     background();
